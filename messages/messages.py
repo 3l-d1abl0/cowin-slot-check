@@ -41,3 +41,8 @@ Vaccines Avail:
 '''.format(vaccine=vaccine, price=fee)
 
     return text_body
+
+def add_cowin_link():
+    return '''\
+<a href='https://selfregistration.cowin.gov.in'>CoWin</a> \
+'''
