@@ -23,9 +23,8 @@ def prepare_center_sessions(session):
     #prepare session data
     session_name ='''\
 Date: {date}
+{vaccine}
 Slots: {available_capacity}
-Vaccine: {vaccine}
-Min. Age: {min_age}
 \n\
 '''.format(date=session["date"], available_capacity=session["available_capacity"], vaccine=session["vaccine"], min_age=session["min_age_limit"])
 
@@ -35,7 +34,6 @@ def prepare_center_price(vaccine, fee):
 
     #prepare vaccination  price
     text_body = '''\
-Vaccines Avail:
 {vaccine} : ₹{price}
 \
 '''.format(vaccine=vaccine, price=fee)
