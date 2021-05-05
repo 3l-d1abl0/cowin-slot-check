@@ -6,14 +6,12 @@ def prepare_center_name(center_idx, center):
 
     #prepare center banner
     center_name = '''\
-===============================
-{count}) {center_name}
-{block_name}
+Vaccination Center for 18-44Group:
+{count}) {center_name} - {block_name}
 {district_name}
-{state_name}
-{pincode}
+{state_name}-{pincode}
 Timing :{time_from} - {to}
-Fee : {fee_type}
+Free/Paid : {fee_type}
 --------------------------------
 \
 '''.format(count=center_idx,center_name=center["name"], block_name=center["block_name"],district_name=center["district_name"], state_name=center["state_name"], pincode=center["pincode"],time_from=center['from'], to=center['to'], fee_type=center["fee_type"])
@@ -25,7 +23,7 @@ def prepare_center_sessions(session):
     #prepare session data
     session_name ='''\
 Date: {date}
-Capacity Avail.: {available_capacity}
+Slots: {available_capacity}
 Vaccine: {vaccine}
 Min. Age: {min_age}
 \n\

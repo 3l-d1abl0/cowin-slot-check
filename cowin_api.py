@@ -96,8 +96,9 @@ if __name__ == "__main__":
     #api_ob = Getvaccine(382424, 0)
     #api_ob = Getvaccine(110001, 0)
     #api_ob = Getvaccine(382041, 0)
-    api_ob = Getvaccine(833201, 0)
+    #api_ob = Getvaccine(833201, 0)
     #api_ob = Getvaccine(412215, 0)
     #api_ob = Getvaccine(400050,0)
+    api_ob = Getvaccine(834001, 0)
 
     api_ob.get_centers()
