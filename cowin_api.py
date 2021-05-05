@@ -1,3 +1,4 @@
+from messages import messages
 import logging
 import requests
 import datetime
@@ -18,53 +19,6 @@ class Getvaccine(object):
         self.option_code = option_code
         self.current_date = datetime.datetime.today().strftime("%d-%m-%Y")
         self.url = API_URLS[url_option]+"={}&date={}".format(option_code, self.current_date)
-
-    @staticmethod
-    def prepare_center_name(center_idx, center):
-
-        #prepare center banner
-        center_name = '''\
-===============================
-{count}) {center_name}
-{block_name}
-{district_name}
-{state_name}
-{pincode}
-Timing :{time_from} - {to}
-Fee : {fee_type}
---------------------------------
-\
-'''.format(count=center_idx,center_name=center["name"], block_name=center["block_name"],district_name=center["district_name"], state_name=center["state_name"], pincode=center["pincode"],time_from=center['from'], to=center['to'], fee_type=center["fee_type"])
-
-        return center_name
-
-
-    @staticmethod
-    def prepare_center_sessions(session):
-
-        #prepare session data
-        session_name ='''\
-Date: {date}
-Capacity Avail.: {available_capacity}
-Vaccine: {vaccine}
-Min. Age: {min_age}
-\n\
-'''.format(date=session["date"], available_capacity=session["available_capacity"], vaccine=session["vaccine"], min_age=session["min_age_limit"])
-
-        return session_name
-
-
-    @staticmethod
-    def prepare_center_price(vaccine, fee):
-
-        #prepare vaccination  price
-        text_body = '''\
-Vaccines Avail:
-{vaccine} : ₹{price}
-\
-'''.format(vaccine=vaccine, price=fee)
-
-        return text_body
 
     def get_centers(self):
 
@@ -99,7 +53,7 @@ Vaccines Avail:
                             if session["available_capacity"] >0 and session["min_age_limit"] ==18:
                                 
                                 if center_flag is False:
-                                    message_body += self.prepare_center_name(center_count, center)
+                                    message_body += messages.prepare_center_name(center_count, center)
                                     #print(message_body)
                                     center_flag = True
                                     center_count+=1
@@ -110,7 +64,7 @@ Vaccines Avail:
                                     #print(self.prepare_center_sessions(session))
                                 
                                 #prepare sessions from the center
-                                message_body += self.prepare_center_sessions(session)
+                                message_body += messages.prepare_center_sessions(session)
                                 #print(message_body)
                                 #pdb.set_trace()
 
@@ -119,7 +73,7 @@ Vaccines Avail:
                             
                             for vac in center["vaccine_fees"]:
                                 
-                                message_body += self.prepare_center_price(vac["vaccine"], vac["fee"])
+                                message_body += messages.prepare_center_price(vac["vaccine"], vac["fee"])
                                 #print(message_body)
 
             else:
@@ -129,7 +83,7 @@ Vaccines Avail:
             if message_body !="":
                 print(message_body)
             else:
-                print("Blank message !")
+                print("No Slots for 18-44 !")
 
         else:
             logging.warning('ERROR : {} : {}'.format(response.status_code, response.request_url))
@@ -142,7 +96,8 @@ if __name__ == "__main__":
     #api_ob = Getvaccine(382424, 0)
     #api_ob = Getvaccine(110001, 0)
     #api_ob = Getvaccine(382041, 0)
-    #api_ob = Getvaccine(833201, 0)
-    api_ob = Getvaccine(412215, 0)
+    api_ob = Getvaccine(833201, 0)
+    #api_ob = Getvaccine(412215, 0)
+    #api_ob = Getvaccine(400050,0)
 
     api_ob.get_centers()
