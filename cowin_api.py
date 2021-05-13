@@ -1,9 +1,14 @@
 from messages import messages
+from dotenv import load_dotenv
+from os.path import join, dirname
+import telegram
 import logging
 import requests
 import datetime
 import json
 import re
+import os
+
 
 logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode ='a', format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
@@ -11,6 +16,9 @@ API_URLS ={
     0: 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode',
     1: 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id'
 }
+
+#previous session IDs
+previous_session = set()
 
 class Getvaccine(object):
 
@@ -23,7 +31,7 @@ class Getvaccine(object):
     def get_centers(self):
 
         #prepare the request
-        response = requests.get(self.url,  headers={"accept": "application/json", "Accept-Language": "en_US"})
+        response = requests.get(self.url,  headers={"accept": "application/json", "Accept-Language": "en_US", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"})
 
         print(response)
         print(response.request.url)
@@ -34,6 +42,8 @@ class Getvaccine(object):
 
             resp_json = response.json()
             #print(json.dumps(resp_json, indent = 1))
+
+            #logging.info(json.dumps(resp_json, indent = 1))
 
             message_body = ""
             center_count = 0
@@ -46,59 +56,87 @@ class Getvaccine(object):
                     for center in resp_json["centers"]:
                         
                         center_flag = False
+                        cowin_link =""
 
                         #loop through all the sessions of a center
                         for session in center["sessions"]:
 
-                            if session["available_capacity"] >0 and session["min_age_limit"] ==18:
+                            if session['session_id'] not in previous_session and session["available_capacity"] >0 and session["min_age_limit"] ==18:
                                 
                                 if center_flag is False:
-                                    message_body += messages.prepare_center_name(center_count, center)
+                                    message_body = messages.prepare_center_name(center_count, center)
                                     #print(message_body)
                                     center_flag = True
                                     center_count+=1
-                                    
-                                    #print("center Flag ", center_flag)
-                                    #print("center count ={}".format(center_count))
-                                    #print(message_body)
-                                    #print(self.prepare_center_sessions(session))
-                                
+                                    cowin_link =""
+
                                 #prepare sessions from the center
                                 message_body += messages.prepare_center_sessions(session)
-                                #print(message_body)
                                 #pdb.set_trace()
+
+                                previous_session.add(session["session_id"])
 
                         #check the vaccine price if fee_type is Paid
                         if center_flag is True and center["fee_type"]=="Paid" and "vaccine_fees" in center:
                             
                             for vac in center["vaccine_fees"]:
-                                
                                 message_body += messages.prepare_center_price(vac["vaccine"], vac["fee"])
-                                #print(message_body)
+
+                        
+                        if cowin_link =="":
+                            cowin_link = messages.add_cowin_link()
+                            
+                            if message_body !="":
+                                message_body +=cowin_link
+                        
+
+                        if message_body !="":
+                            #print('+_+_+_+_')
+                            #message_body +=messages.add_cowin_link()
+                            print(message_body)
+                            #bot.send_message(chat_id="@%s" % os.environ.get("CHAT_ID"), text=message_body, parse_mode=telegram.ParseMode.HTML)
+                            message_body = ""
 
             else:
                 print("No Vaccination Centers available from {} to next 7 days".format(self.current_date))
                 logging.info("No Vaccination Centers available from {} to next 7 days".format(self.current_date))
 
+            '''
             if message_body !="":
                 print(message_body)
+                bot.send_message(chat_id="@%s" % os.environ.get("CHAT_ID"), text=message_body, parse_mode=telegram.ParseMode.HTML)
             else:
                 print("No Slots for 18-44 !")
+            '''
 
         else:
-            logging.warning('ERROR : {} : {}'.format(response.status_code, response.request_url))
+            logging.warning('ERROR : {} : {}'.format(response.status_code, response.request.url))
 
 
 
 
 if __name__ == "__main__":
 
+    #load env variables
+    #dotenv_path = join(dirname(__file__), '.env')
+    #print(dotenv_path)
+    load_dotenv()
+
+    #Initialize BOT
+    #bot = telegram.Bot(token="@%s"%os.environ.get("BOT_TOKEN"))
+    bot = telegram.Bot(token="{}".format(os.environ.get("BOT_TOKEN")))
+
     #api_ob = Getvaccine(382424, 0)
     #api_ob = Getvaccine(110001, 0)
     #api_ob = Getvaccine(382041, 0)
     #api_ob = Getvaccine(833201, 0)
     #api_ob = Getvaccine(412215, 0)
-    #api_ob = Getvaccine(400050,0)
-    api_ob = Getvaccine(834001, 0)
+    #api_ob = Getvaccine(400050, 0)
+    #api_ob = Getvaccine(834001, 0)
+
+    #west.Singhbhum 263
+    api_ob = Getvaccine(263, 1)
 
     api_ob.get_centers()
+
+    print(previous_session)
