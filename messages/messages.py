@@ -6,7 +6,7 @@ def prepare_center_name(center_idx, center):
 
     #prepare center banner
     center_name = '''\
-Vaccination Center for 18-44Group:
+Vaccination Center for 18-44 Group:
 {count}) {center_name} - {block_name}
 {district_name}
 {state_name}-{pincode}
