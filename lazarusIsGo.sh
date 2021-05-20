@@ -1,11 +1,11 @@
 #! /bin/bash
 
-python -m venv new_env
-
-pip install -r requirements.txt
+python3 -m venv new_env
 
 source new_env/bin/activate
 
-python cron_setup.py
+pip3 install -r requirements.txt
+
+python3 cron_setup.py
 
 deactivate
