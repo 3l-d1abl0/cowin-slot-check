@@ -45,6 +45,8 @@ class Getvaccine(object):
             if int(diff/86400) >= 24:
                 del self.previous_session[key]
 
+        print(self.previous_session)
+
 
     def get_centers(self):
 
@@ -159,4 +161,3 @@ if __name__ == "__main__":
     api_ob.save_previous_sessions()
 
 
-    
