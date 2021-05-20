@@ -33,19 +33,25 @@ class Getvaccine(object):
 
     def process_previous_sessions(self):
 
-        #loads previous session ids from disk
-        with open('previous_session.json','r') as f:
-            self.previous_session = json.loads(f.read())
 
-        #loop through each session ids, remove the ones which are older than 24 hrs
-        for key in list(self.previous_session):
-            
-            diff = time.time() - self.previous_session[key]
+        try:
 
-            if int(diff/86400) >= 24:
-                del self.previous_session[key]
+            #loads previous session ids from disk
+            with open('previous_session.json','r') as f:
+                self.previous_session = json.loads(f.read())
 
-        print(self.previous_session)
+            #loop through each session ids, remove the ones which are older than 24 hrs
+            for key in list(self.previous_session):
+                
+                diff = time.time() - self.previous_session[key]
+
+                if int(diff/86400) >= 24:
+                    del self.previous_session[key]
+
+            #print(self.previous_session)
+        
+        except OSError as e:
+            print("Previous session file not found ! ",e)
 
 
     def get_centers(self):
