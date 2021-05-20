@@ -10,7 +10,7 @@ if __name__ == "__main__":
     cron   = CronTab(user='eldiablo')
     
 
-    pwd = os.getcwd()
+    pwd = os.path.dirname(os.path.abspath(__file__))
     cron_comm = "{pwd}/hellfire.sh {pwd} >> {pwd}/stdout.log 2>&1".format(pwd=pwd)
     
     #add new cron job
