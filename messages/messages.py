@@ -22,11 +22,12 @@ def prepare_center_sessions(session):
 
     #prepare session data
     session_name ='''\
-Date: {date}
+{date}
 {vaccine}
 Slots: {available_capacity}
+Dose 1: {dose1} Dose 2: {dose2}
 \n\
-'''.format(date=session["date"], available_capacity=session["available_capacity"], vaccine=session["vaccine"], min_age=session["min_age_limit"])
+'''.format(date=session["date"], available_capacity=session["available_capacity"], vaccine=session["vaccine"], min_age=session["min_age_limit"], dose1=session["available_capacity_dose1"], dose2=session["available_capacity_dose2"])
 
     return session_name
 
