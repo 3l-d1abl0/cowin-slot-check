@@ -28,6 +28,23 @@ class Getvaccine(object):
         self.option_code = option_code
         self.current_date = datetime.datetime.today().strftime("%d-%m-%Y")
         self.url = API_URLS[url_option]+"={}&date={}".format(option_code, self.current_date)
+        self.previous_session ={}
+
+
+    def process_previous_sessions(self):
+
+        #loads previous session ids from disk
+        with open('previous_session.json','r') as f:
+            self.previous_session = json.loads(f.read())
+
+        #loop through each session ids, remove the ones which are older than 24 hrs
+        for key in list(self.previous_session):
+            
+            diff = time.time() - self.previous_session[key]
+
+            if int(diff/86400) >= 24:
+                del self.previous_session[key]
+
 
     def get_centers(self):
 
@@ -62,7 +79,7 @@ class Getvaccine(object):
                         #loop through all the sessions of a center
                         for session in center["sessions"]:
 
-                            if session['session_id'] not in previous_session and session["available_capacity"] >0 and session["min_age_limit"] ==18:
+                            if session['session_id'] not in self.previous_session and session["available_capacity"] >0 and session["min_age_limit"] ==18:
                                 
                                 if center_flag is False:
                                     message_body = messages.prepare_center_name(center_count, center)
@@ -75,7 +92,7 @@ class Getvaccine(object):
                                 message_body += messages.prepare_center_sessions(session)
                                 #pdb.set_trace()
 
-                                previous_session[session["session_id"]] = datetime.datetime.now()
+                                self.previous_session[session["session_id"]] = time.time()
 
                         #check the vaccine price if fee_type is Paid
                         if center_flag is True and center["fee_type"]=="Paid" and "vaccine_fees" in center:
@@ -114,47 +131,32 @@ class Getvaccine(object):
             logging.warning('ERROR : {} : {}'.format(response.status_code, response.request.url))
 
 
+    def save_previous_sessions(self):
+        
+        with open("previous_session.json", "w") as file:
+            file.write(json.dumps(self.previous_session))
 
 
 if __name__ == "__main__":
 
     #load env variables
-    #dotenv_path = join(dirname(__file__), '.env')
-    #print(dotenv_path)
     load_dotenv()
 
     #Initialize BOT
     #bot = telegram.Bot(token="@%s"%os.environ.get("BOT_TOKEN"))
     bot = telegram.Bot(token="{}".format(os.environ.get("BOT_TOKEN")))
 
-    #api_ob = Getvaccine(382424, 0)
-    #api_ob = Getvaccine(110001, 0)
-    #api_ob = Getvaccine(382041, 0)
-    #api_ob = Getvaccine(833201, 0)
-    #api_ob = Getvaccine(412215, 0)
-    #api_ob = Getvaccine(400050, 0)
-    #api_ob = Getvaccine(834001, 0)
-
-    #west.Singhbhum 263
+    #Initialize api objects
     api_ob = Getvaccine(263, 1)
 
-    while True:
+    #get and process previous sessions
+    api_ob.process_previous_sessions()
 
-        api_ob.get_centers()
+    #fetch contents
+    api_ob.get_centers()
+
+    #save sessions
+    api_ob.save_previous_sessions()
 
 
-        print('waiting')
-
-        time.sleep( 10 )
-'''
-        for key in list(previous_session):
-
-            diff = datetime.datetime.now() - previous_session[key]
-            if int(diff.seconds/1) > 21:
-                del previous_session[key]
-
-        print('============================')
-        print(previous_session)
-        print('============================')
-
-'''
+    
