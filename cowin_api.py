@@ -5,6 +5,7 @@ import telegram
 import logging
 import requests
 import datetime
+import time
 import json
 import re
 import os
@@ -18,7 +19,7 @@ API_URLS ={
 }
 
 #previous session IDs
-previous_session = set()
+previous_session = {}
 
 class Getvaccine(object):
 
@@ -74,7 +75,7 @@ class Getvaccine(object):
                                 message_body += messages.prepare_center_sessions(session)
                                 #pdb.set_trace()
 
-                                previous_session.add(session["session_id"])
+                                previous_session[session["session_id"]] = datetime.datetime.now()
 
                         #check the vaccine price if fee_type is Paid
                         if center_flag is True and center["fee_type"]=="Paid" and "vaccine_fees" in center:
@@ -137,6 +138,23 @@ if __name__ == "__main__":
     #west.Singhbhum 263
     api_ob = Getvaccine(263, 1)
 
-    api_ob.get_centers()
+    while True:
 
-    print(previous_session)
+        api_ob.get_centers()
+
+
+        print('waiting')
+
+        time.sleep( 10 )
+'''
+        for key in list(previous_session):
+
+            diff = datetime.datetime.now() - previous_session[key]
+            if int(diff.seconds/1) > 21:
+                del previous_session[key]
+
+        print('============================')
+        print(previous_session)
+        print('============================')
+
+'''
