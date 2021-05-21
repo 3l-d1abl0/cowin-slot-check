@@ -45,7 +45,7 @@ class Getvaccine(object):
                 
                 diff = time.time() - self.previous_session[key]
 
-                if int(diff/86400) >= 24:
+                if int(diff/86400) >= 12:
                     del self.previous_session[key]
 
             #print(self.previous_session)
@@ -120,7 +120,7 @@ class Getvaccine(object):
                             #print('+_+_+_+_')
                             #message_body +=messages.add_cowin_link()
                             print(message_body)
-                            #bot.send_message(chat_id="@%s" % os.environ.get("CHAT_ID"), text=message_body, parse_mode=telegram.ParseMode.HTML)
+                            bot.send_message(chat_id="@%s" % os.environ.get("CHAT_ID"), text=message_body, parse_mode=telegram.ParseMode.HTML)
                             message_body = ""
 
             else:
